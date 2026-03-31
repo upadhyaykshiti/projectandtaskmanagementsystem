@@ -5,6 +5,8 @@
 import express from "express";
 import cors from "cors";
 import { authRouter } from "../src/routes/auth.routes";
+import { projectsRouter } from "../src/routes/project.routes";
+import { tasksRouter } from "../src/routes/task.routes";
 import { errorHandler } from "../src/middleware/error";
 
 const app = express();
@@ -17,6 +19,8 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRouter);
+app.use("/api/projects", projectsRouter);
+app.use("/api/tasks", tasksRouter);
 
 
 // Global error handler
