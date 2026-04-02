@@ -200,3 +200,45 @@ export function useDeleteTask(projectId: string) {
     },
   });
 }
+
+
+// ─── Exports ──────────────────────────────────────────────────────────────────
+
+export function useTriggerExport(projectId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post<ApiResponse<Export>>(`/projects/${projectId}/export`);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.exports() });
+    },
+  });
+}
+
+export function useExportStatus(exportId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: queryKeys.exportStatus(exportId ?? ""),
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Export>>(`/exports/${exportId}`);
+      return data.data;
+    },
+    enabled: Boolean(exportId) && enabled,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      if (status === "completed" || status === "failed") return false;
+      return 3000;
+    },
+  });
+}
+
+export function useExportHistory() {
+  return useQuery({
+    queryKey: queryKeys.exports(),
+    queryFn: async () => {
+      const { data } = await api.get<ApiResponse<Export[]>>("/exports");
+      return data.data;
+    },
+  });
+}
